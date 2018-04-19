@@ -1,4 +1,175 @@
 
+<!-- abc 
+	================================================== -->
+	<section id="product"><div class="container"><div class="row">
+		<!-- .row -->
+
+		<div class="col-lg-3"><div class="card box-shadow filter">
+			<!-- .filter -->
+
+			<h5>Filters:</h5>
+
+			<div class="custom-control custom-checkbox">
+				<input type="checkbox" class="custom-control-input" id="man"
+				[(ngModel)]="man" (change)="filterByCategory('man', man)">
+				<label class="custom-control-label" for="man">Man</label>
+			</div>
+
+			<div class="custom-control custom-checkbox">
+				<input type="checkbox" class="custom-control-input" id="women"
+				[(ngModel)]="women" (change)="filterByCategory('women', women)">
+				<label class="custom-control-label" for="women">Women</label>
+			</div>
+
+			<!-- ./filter -->
+		</div></div>
+
+
+		<div class="col-lg-9">
+			<!-- .data  -->
+
+			<div *ngIf="items$ | async; let items; else loading"><div class="row">
+
+				<div class="col-lg-4 col-md-4 col-sm-6" *ngFor="let item of items">
+					<div class="card mb-4 box-shadow text-center">
+						<img class="card-img-top" src="assets/MiracleSoap.jpg">
+						<div class="card-body">
+							<h5>{{ item.name }}</h5>
+							<p>{{ item.description }}</p>
+							<h5 class="text-primary">PKR {{ item.price }}</h5>
+							
+							<hr><div class="row">
+								<div class="col-9 view-detail">
+									<button class="detail" type="button" data-toggle="modal" data-target="#product-modal">View details</button>
+								</div>
+								<div class="col-3 add-cart">
+									<button class="cart" type="button"><i class="fas fa-shopping-cart"></i></button>
+								</div>
+							</div>
+
+
+						</div></div></div>
+
+
+						<div class="col-lg-12 result" *ngIf='items.length === 0'>No results, try clearing filters</div>
+					</div></div>
+
+					<!--  ./data -->
+					<ng-template #loading>
+						<div class="col-lg-12"><app-spinner></app-spinner></div>
+					</ng-template>
+				</div>
+
+				<!-- ./row -->
+			</div></div></section>
+
+/* Filter
+================================================== */
+
+.filter {
+	padding: 1.5rem 1rem;
+}
+
+.custom-checkbox .custom-control-input:checked~.custom-control-label::before {
+	background-color: var(--heading-color);
+}
+
+
+
+
+  items$: Observable<Item[]>;
+  result$: Observable<Item[]>;
+  //result$: any;
+
+  private itemsCollection: AngularFirestoreCollection<Item>;
+
+  //items: Observable<Item[]>;
+  //results: Observable<Item[]>;
+  //showSpinner: boolean = true;
+ //items: any;
+ //results: any;
+ 
+// filter-able properties
+//category: string;
+//man: BehaviorSubject<boolean>;
+//sizeFilter$: BehaviorSubject<string|null>;
+man : boolean;
+women: boolean;
+
+//price: number;
+
+// Active filter rules
+//filters = {}
+
+constructor(afs: AngularFirestore) {
+  //this.man = new BehaviorSubject(false);
+  this.itemsCollection = afs.collection<Item>('items');
+  this.result$ = this.itemsCollection.valueChanges();
+  //this.result$ = this.itemsCollection;
+  this.items$ = this.result$;
+}
+/*
+filterByCategory(category: string|null) {
+
+  if(category == 'man') {
+  this.items$ = _.filter(this.result$, ['category', 'man']);
+  }  
+}*/
+
+// https://stackoverflow.com/questions/46423787/angular-4-rxjs-filter-data-in-observable-array
+filterByCategory(property: string, rule: boolean) {
+  if (property == 'man' && rule == true) {
+    this.women = false;
+    return this.items$ = this.result$.map(result$ => {
+      return result$.filter((item: Item) => item.category === "man");
+  });
+  
+/*
+    return this.items$
+    .map(items$ => {
+      let fl = items$.filter(item => item.category === 'man');
+      return (fl.length > 0) ? fl[0] : null;
+    });*/
+
+    //return this.items$.filter(item => item.category === 'man');
+    //return this.items$ = Observable.of(_.filter(this.result$, ['category', 'man']));
+
+    //return this.items$ = _.filter(this.result$, ['category', 'man']);
+
+  } else if (property == 'women' && rule == true) {
+    this.man = false;
+    return this.items$ = this.result$.map(result$ => {
+      return result$.filter((item: Item) => item.category === "women");
+  });
+  } else {
+    return this.items$ = this.result$;
+    //return this.items$.filter(item => item.category === 'woman');
+    //return this.items$ = Observable.of(_.filter(this.result$, ['category', 'man']));
+
+  }
+}
+
+}
+
+import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import * as _ from 'lodash';
+
+import { Item } from '../../shared/item.model';
+//import { ItemService } from '../../shared/item.service';
+import { AngularFirestore, AngularFirestoreCollection } from 'angularfire2/firestore';
+
+export class Item {
+  $id: string;
+  name: string;
+  description: string;
+  imagePath: string;
+  price: string;
+  category: string;
+  status: string;
+  //timeStamp: number;
+}
+
 https://drive.google.com/open?id=1FlVy51UXRaCNgIXuSc_seaAAZ7ZiSc0x
 
 https://drive.google.com/open?id=1bAukNQLatyvJZuzHUC-wFO2SWklXENWX
